@@ -1,2 +1,5 @@
 # Ignoring all ipynb_checkpoints/ folders:
 .ipynb_checkpoints/ 
+
+# Ignoring all .tar.gz files to ignore datasets:
+*.tar.gz
