@@ -10,7 +10,7 @@ class StandardModelManager:
 
     def train(self, data_loader, epochs=10):
         for epoch in range(epochs):
-            print(f'Training epoch {epoch + 1} of {epochs}')
+            display_epoch = epoch + 1
             for idx, (data, target) in enumerate(data_loader):
                 # Train Batch
                 target = target.to(self.device)
@@ -26,4 +26,4 @@ class StandardModelManager:
                 correct = pred.eq(target).sum() * 1.0
                 acc = correct / batch_size
 
-                print(f'Training Accuracy: {acc:.4f}')
+                print(f'Epoch {display_epoch} Batch Training Accuracy: {acc:.4f}')
