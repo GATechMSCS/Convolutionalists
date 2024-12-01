@@ -6,9 +6,9 @@ from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 
 
-class Food101:
+class Cifar10:
     def __init__(self, random_seed = 101, batch_size = 128):
-        self.root = os.path.join("data", "food101")
+        self.root = os.path.join("data", "cifar10")
         self.random_seed = random_seed
         self.batch_size = batch_size
         self.transformer = transforms.Compose(
@@ -18,7 +18,7 @@ class Food101:
         )
 
     def getTrainingAndValidationData(self):
-        data = torchvision.datasets.Food101(root=self.root, split='train', download=True, transform=self.transformer)
+        data = torchvision.datasets.CIFAR10(root=self.root, train=True, download=True, transform=self.transformer)
         generator = torch.Generator().manual_seed(self.random_seed)
         return random_split(data, [0.8, 0.2], generator=generator)
 
@@ -31,5 +31,5 @@ class Food101:
         return DataLoader(validation, batch_size=self.batch_size, shuffle=True)
 
     def getTestData(self):
-        test_data = torchvision.datasets.Food101(root=self.root, split='test', download=True, transform=self.transformer)
+        test_data = torchvision.datasets.CIFAR10(root=self.root, train=False, download=True, transform=self.transformer)
         return DataLoader(test_data, batch_size=self.batch_size, shuffle=True)
