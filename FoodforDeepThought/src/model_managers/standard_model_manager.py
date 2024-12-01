@@ -1,7 +1,7 @@
 import torch
 
 
-class StandardSolver:
+class StandardModelManager:
     def __init__(self, model, criterion, optimizer):
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.model = model.to(self.device)
