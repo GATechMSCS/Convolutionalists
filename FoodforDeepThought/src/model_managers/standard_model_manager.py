@@ -58,6 +58,10 @@ class StandardModelManager:
                     self.best_accuracy = acc
                     self.best_model_state_dict = copy.deepcopy(self.model.state_dict())
 
+        # Load best state after training for use
+        if self.best_model_state_dict is not None:
+            self.model.load_state_dict(self.best_model_state_dict)
+
     def predict(self, data):
         with torch.no_grad():
             output = self.model.forward(data.to(self.device))
