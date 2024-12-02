@@ -15,10 +15,10 @@ def run():
 
     dataset = Cifar10()
     training_data = dataset.getTrainingData()
-
-    model_manager.train(training_data, epochs=2)
-
     validation_data = dataset.getValidationData()
+
+    model_manager.train(training_data, validation_data, epochs=2)
+
     data, target = next(iter(validation_data))
 
     pred1, _ = model_manager.predict(data)
