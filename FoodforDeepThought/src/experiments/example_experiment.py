@@ -1,3 +1,4 @@
+import os
 import torch
 from torch import nn, optim
 from ..datasets.cifar10 import Cifar10
@@ -16,6 +17,19 @@ def run():
     training_data = dataset.getTrainingData()
 
     model_manager.train(training_data, epochs=2)
+
+    validation_data = dataset.getValidationData()
+    data, target = next(iter(validation_data))
+
+    pred1, _ = model_manager.predict(data)
+
+    model_manager.save(os.path.join('src', 'model_saves', 'resnet18_example_experiment.pth'))
+
+    model_manager.load(os.path.join('src', 'model_saves', 'resnet18_example_experiment.pth'))
+
+    pred2, _ = model_manager.predict(data)
+
+    print(f'Predictions are equal after saving and loading the model: {torch.equal(pred1, pred2)}')
 
 
 if __name__ == "__main__":

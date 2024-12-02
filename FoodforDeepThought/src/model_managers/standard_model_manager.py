@@ -26,4 +26,19 @@ class StandardModelManager:
                 correct = pred.eq(target).sum() * 1.0
                 acc = correct / batch_size
 
-                print(f'Epoch {display_epoch} Batch Training Accuracy: {acc:.4f}')
+                if idx % 10 == 0:
+                    print(f'Epoch {display_epoch} Batch Training Accuracy: {acc:.4f}')
+
+    def predict(self, data):
+        with torch.no_grad():
+            output = self.model.forward(data.to(self.device))
+            _, pred = torch.max(output, dim=-1)
+
+        return pred, output
+
+    def save(self, filepath):
+        torch.save(self.model.state_dict(), filepath)
+
+    def load(self, filepath):
+        self.model.load_state_dict(torch.load(filepath, weights_only=True))
+
