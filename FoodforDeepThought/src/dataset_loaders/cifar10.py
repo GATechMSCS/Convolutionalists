@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 
 
-class Cifar10:
+class Cifar10Loader:
     def __init__(self, random_seed = 101, batch_size = 128):
         self.root = os.path.join("data", "cifar10")
         self.random_seed = random_seed

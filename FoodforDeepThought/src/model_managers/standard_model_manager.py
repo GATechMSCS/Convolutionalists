@@ -1,5 +1,6 @@
 import copy
 import torch
+from tqdm import tqdm
 
 
 class StandardModelManager:
@@ -12,7 +13,7 @@ class StandardModelManager:
         self.best_model_state_dict = None
 
     def train(self, training_data_loader, validation_data_loader = None, epochs=10):
-        for epoch in range(epochs):
+        for epoch in tqdm(range(epochs)):
             display_epoch = epoch + 1
             for idx, (data, target) in enumerate(training_data_loader):
                 # Train Batch
@@ -32,7 +33,7 @@ class StandardModelManager:
                 if idx % 10 == 0:
                     print(f'Epoch {display_epoch} Batch Training Accuracy: {acc:.4f}')
 
-            if validation_data_loader is not None:
+            if validation_data_loader:
                 num_correct = 0
                 num_samples = 0
                 for idx, (data, target) in enumerate(validation_data_loader):

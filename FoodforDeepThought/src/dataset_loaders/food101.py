@@ -7,7 +7,7 @@ from torchvision.datasets import Food101
 import torchvision.transforms as transforms
 
 
-class food101:
+class Food101Loader:
     def __init__(self, random_seed = 101, batch_size = 128, perc_keep = 1.0):
         self.data_dir = os.path.join("data", "food101") # Directory in which dataset resides
         self.random_seed = random_seed
@@ -16,16 +16,11 @@ class food101:
         self.perc_keep = perc_keep # Percentage of dataset to be kept (number between 0 and 1)
         self.transforms = transforms.Compose(
             [
-                transforms.Resize((250, 250)),
-                transforms.ToTensor(),
+                transforms.Resize((224, 224)),
+                transforms.ToTensor()
                 # transforms.Normalize
             ]
         )
-
-        # Placeholder variables for the training, validation, and test sets:
-        self.train = None
-        self.val = None
-        self.test = None
     
 
     def load_data(self):
@@ -46,18 +41,26 @@ class food101:
 
         # Seed generator:
         generator = torch.Generator().manual_seed(self.random_seed)
+
+        if self.perc_keep != 1.00:
+            # Calculating the limited sizes of the datasets to keep:
+            train_size = int(len(train_raw) * self.perc_keep)
+            test_size = int(len(test_raw) * self.perc_keep)
+
+            # Decreasing the size of the datasets using random_split:
+            train_raw, _ = random_split(train_raw, [train_size, (len(train_raw)-train_size)])
+            test_raw, _ = random_split(test_raw, [test_size, (len(test_raw)-test_size)])
         
-        # Calculating the limited sizes of the datasets to keep:
-        train_size = int(len(train_raw) * self.perc_keep)
-        test_size = int(len(test_raw) * self.perc_keep)
-
-        # Decreasing the size of the datasets using random_split:
-        train_raw = random_split(train_raw, [train_size, (len(train_raw)-train_size)])
-        self.test = random_split(test_raw, [test_size, (len(test_raw)-test_size)])
-
+        test_set = DataLoader(test_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
+        
         # Splitting the training set further into training and validation sets:
-        self.train, self.val = random_split(train_raw, [int(0.8 * len(train_raw)), (len(train_raw) - int(0.8 * len(train_raw)))], generator=generator)        
-        
+        train_set, val_set = random_split(train_raw, [int(0.8 * len(train_raw)), (len(train_raw) - int(0.8 * len(train_raw)))], generator=generator)        
+
+        # Applying DataLoaders to the training and validation sets:
+        train_set = DataLoader(train_set, batch_size=self.batch_size, shuffle=True)
+        val_set = DataLoader(val_set, batch_size=self.batch_size, shuffle=True)
+
+        return train_set, val_set, test_set
             
     # def getTrainingAndValidationData(self):
     #     data = Food101(root=self.data_dir, split='train', download=True, transform=self.transformer)
