@@ -12,3 +12,9 @@ with the following directory structure:
 use the model to make predictions
 - **model_saves** - This directory is for saving the models we use in our experiments so they can be used in 
 other experiments
+
+To run an experiment, simpley type something like the following in a terminal 
+from within the `FoodforDeepThought` directory.
+```
+python -m src.experiments.example_experiment
+```
