@@ -3,3 +3,8 @@
 
 # Ignoring all .tar.gz files to ignore datasets:
 *.tar.gz
+
+# Ignoring contents of data folder:
+FoodForDeepThought/data/*
+
+*.pyc
