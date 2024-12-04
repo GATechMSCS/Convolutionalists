@@ -9,8 +9,8 @@ import torchvision.transforms as transforms
 
 class Fruits360Loader:
     def __init__(self, random_seed = 101, batch_size = 128, perc_keep = 1.0):
-        self.train_dir = os.path.join("data", "fruits360", "Training") # Directory in which training dataset resides
-        self.test_dir = os.path.join("data", "fruits360", "Test") # Directory in which testing dataset resides 
+        self.train_dir = os.path.join("data", "fruits-360", "Training") # Directory in which training dataset resides
+        self.test_dir = os.path.join("data", "fruits-360", "Test") # Directory in which testing dataset resides 
         self.random_seed = random_seed
         self.batch_size = batch_size
         
@@ -18,8 +18,8 @@ class Fruits360Loader:
         self.transforms = transforms.Compose(
             [
                 transforms.Resize((224, 224)),
-                transforms.ToTensor()
-                # transforms.Normalize
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # ImageNet's normalization statistics
             ]
         )
     
@@ -54,8 +54,8 @@ class Fruits360Loader:
         train_set, val_set = random_split(train_raw, [int(0.8 * len(train_raw)), (len(train_raw) - int(0.8 * len(train_raw)))], generator=generator)        
 
         # Applying DataLoaders to the training and validation sets:
-        train_set = DataLoader(train_set, batch_size=self.batch_size, shuffle=True)
-        val_set = DataLoader(val_set, batch_size=self.batch_size, shuffle=True)
+        train_set = DataLoader(train_set, batch_size=self.batch_size, shuffle=False)
+        val_set = DataLoader(val_set, batch_size=self.batch_size, shuffle=False)
 
         return train_set, val_set, test_set
             
