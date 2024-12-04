@@ -119,6 +119,7 @@ class StandardModelManager:
 
     def plot_learning_curve(self, model_name):
         """
+        This function plots the learning curve from the most recent training period of this model manager.
         
         Inputs:
         model_name (str) - Name of the model
@@ -127,10 +128,17 @@ class StandardModelManager:
         title = model_name + " Learning Curve"
         filename = model_name + "_learning_curve.png"
 
+        # Moving tensors to CPU:
+        for i, values in enumerate(zip(self.training_accs, self.val_accs)):
+            self.training_accs[i] = values[0].to('cpu')
+            self.val_accs[i]=values[1].to('cpu')
+
+        # Plotting training and validation accuracy values:
         plt.plot(self.training_accs, label='Training Accuracy')
         plt.plot(self.val_accs, label='Validation Accuracy')
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
+        plt.title(title)
         plt.legend(loc='best')
         plt.savefig(filename, dpi=600)
         plt.show()
