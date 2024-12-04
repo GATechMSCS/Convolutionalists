@@ -4,26 +4,24 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.9
+  - python=3.11
   - pip
-  - pytorch=1.12.0
-  - torchvision=0.13.0
-  - cudatoolkit=11.6
+  - pytorch=2.5.1
+  - torchvision=0.20.1
+  # - cudatoolkit
   - jupyter
   - ipykernel
   - pip:
-    - transformers==4.30.2
-    - ultralytics==8.0.0  # This includes YOLOv11
+    - transformers==4.46.3
+    - ultralytics==8.3.40  # This includes YOLOv11
     - opencv-python
     - matplotlib
-    - numpy==1.24.0
+    - numpy<2.0.0
     - Pillow
-    - PyYAML
     - requests
     - scipy
     - tqdm
     - pandas
     - seaborn
-    - albumentations
-    - pycocotools
     - tensorboard
+    - roboflow
