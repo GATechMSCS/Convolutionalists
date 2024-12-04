@@ -3,13 +3,14 @@ import torchvision
 import torch
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader
-from torchvision.datasets import Food101
+from torchvision.datasets import ImageFolder
 import torchvision.transforms as transforms
 
 
-class Food101Loader:
+class Fruits360Loader:
     def __init__(self, random_seed = 101, batch_size = 128, perc_keep = 1.0):
-        self.data_dir = os.path.join("data", "food101") # Directory in which dataset resides
+        self.train_dir = os.path.join("data", "fruits360", "Training") # Directory in which training dataset resides
+        self.test_dir = os.path.join("data", "fruits360", "Test") # Directory in which testing dataset resides 
         self.random_seed = random_seed
         self.batch_size = batch_size
         
@@ -28,16 +29,12 @@ class Food101Loader:
         """ This function strives to download the Food101 dataset to the local data directory if
         it has not already been downloaded previously. This function also splits the datasets into training,
         validation, and testing sets, assigning them as class variables. """
-        
-        # If the dataset does not exist locally, then download:
-        if os.path.exists(self.data_dir):
-            download_param = False
-        else:
-            download_param = True
 
-        # Loading/downloading datasets:
-        train_raw = Food101(root=self.data_dir, split="train", download=download_param, transform=self.transforms)
-        test_raw = Food101(root=self.data_dir, split="test", download=download_param, transform=self.transforms)
+        # Note - this assumes the Fruits 360 dataset has already been downloaded to their respective directories:.
+        # If the dataset has not been downloaded, then please manually download it and place it in the directories
+        # as described in the class initialization:
+        train_raw = ImageFolder(self.train_dir, transform = self.transforms)
+        test_raw = ImageFolder(self.test_dir, transform = self.transforms)
 
         # Seed generator:
         generator = torch.Generator().manual_seed(self.random_seed)
@@ -57,8 +54,8 @@ class Food101Loader:
         train_set, val_set = random_split(train_raw, [int(0.8 * len(train_raw)), (len(train_raw) - int(0.8 * len(train_raw)))], generator=generator)        
 
         # Applying DataLoaders to the training and validation sets:
-        train_set = DataLoader(train_set, batch_size=self.batch_size, shuffle=False)
-        val_set = DataLoader(val_set, batch_size=self.batch_size, shuffle=False)
+        train_set = DataLoader(train_set, batch_size=self.batch_size, shuffle=True)
+        val_set = DataLoader(val_set, batch_size=self.batch_size, shuffle=True)
 
         return train_set, val_set, test_set
             
