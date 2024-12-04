@@ -11,8 +11,6 @@ class LLMTune:
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
         model = BertForQuestionAnswering.from_pretrained('bert-base-uncased')
 
-        # Fine-tune the model on food-related QA dataset (not shown here)
-
         def get_food_info(food_item, question):
             inputs = tokenizer.encode_plus(question, food_item, return_tensors='pt')
             outputs = model(**inputs)
@@ -29,7 +27,6 @@ class LLMTune:
 
     def gpt():
         
-
         tokenizer = GPT2Tokenizer.from_pretrained('gpt2-medium')
         model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
 
@@ -38,7 +35,6 @@ class LLMTune:
             outputs = model.generate(inputs, max_length=max_length, num_return_sequences=1, temperature=0.7)
             return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-        # Example usage
         food_item = "sushi"
         nutrition_info = generate_food_info(f"Nutrition facts of {food_item}:")
         health_benefits = generate_food_info(f"Health benefits of eating {food_item}:")

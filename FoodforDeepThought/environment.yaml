@@ -8,12 +8,11 @@ dependencies:
   - pip
   - pytorch=2.5.1
   - torchvision=0.20.1
-  # - cudatoolkit
   - jupyter
   - ipykernel
   - pip:
     - transformers==4.46.3
-    - ultralytics==8.3.40  # This includes YOLOv11
+    - ultralytics==8.3.40
     - opencv-python
     - matplotlib
     - numpy<2.0.0

@@ -6,6 +6,7 @@
 
 # Ignoring contents of data folder:
 FoodForDeepThought/data/*
+FoodforDeepThought/data
 FoodForDeepThought/runs/*
 
 *.pyc
