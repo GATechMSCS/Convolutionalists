@@ -97,9 +97,12 @@ class StandardModelManager:
         """ This function applies the trained model to the given test data. 
             It prints and returns the test accuracy.
         """
-        
+
+        num_correct = 0
+        num_samples = 0
         for idx, (data, target) in enumerate(test_data_loader):
             with torch.no_grad():
+                target = target.to(self.device)
                 output = self.model.forward(data.to(self.device))
                 loss = self.criterion(output, target)
         
@@ -112,7 +115,7 @@ class StandardModelManager:
             num_samples += batch_size
         
         acc = num_correct / num_samples
-
+        
         print(f'Test Accuracy: {acc:.4f}')
         print('===========================================================')
 
