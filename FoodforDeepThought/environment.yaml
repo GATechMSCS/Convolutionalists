@@ -25,3 +25,4 @@ dependencies:
     - tensorboard
     - roboflow
     - kagglehub
+    - openimages
