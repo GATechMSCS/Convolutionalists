@@ -1,9 +1,8 @@
-import copy
-import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-import numpy as np
-
+import torch
+import copy
 
 class StandardModelManager:
     def __init__(self, model, criterion, optimizer, device=None):
@@ -155,6 +154,30 @@ class StandardModelManager:
 
     def load(self, filepath):
         self.model.load_state_dict(torch.load(filepath, weights_only=True))
+
+    def prompt_llm(self, model_preds, prompt):
+        """prompts a llm for food nutrition facts, health benefits, and recipes
+
+        Args:
+            model_preds (string): model prediciton. the food label
+
+        Returns:
+            str: llm's response
+        """
+
+        tokenizer = AutoTokenizer.from_pretrained("gpt3.5-turbo")
+        llm = AutoModelForCausalLM.from_pretrained("gpt3.5-turbo")
+        
+        prompt = f"{prompt} {model_preds}"
+        
+        inputs = tokenizer(prompt, return_tensors="pt")
+        outputs = llm.generate(**inputs, max_length=500)
+        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+        print(f"Detected Food Item: {detected_items}")
+        print(f"Requested Data:\n{response}")
+        return response
+        
 
 class FRCNNModelManager(StandardModelManager):
     """class specifically to address the training problems with Faster-RCNN ie it requires target to be a dictionary. It also needs ROI information. Inherits from StandardModelManager
