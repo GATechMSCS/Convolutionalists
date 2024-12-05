@@ -177,7 +177,6 @@ class StandardModelManager:
         print(f"Detected Food Item: {detected_items}")
         print(f"Requested Data:\n{response}")
         return response
-        
 
 class FRCNNModelManager(StandardModelManager):
     """class specifically to address the training problems with Faster-RCNN ie it requires target to be a dictionary. It also needs ROI information. Inherits from StandardModelManager
