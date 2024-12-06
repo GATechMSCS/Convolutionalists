@@ -1,7 +1,7 @@
 import os
 import torch
 from torch import nn, optim
-from ..datasets.cifar10 import Cifar10
+from ..dataset_loaders.cifar10 import Cifar10Loader
 from ..models.resnet18 import ResNet18
 from ..model_managers.standard_model_manager import StandardModelManager
 
@@ -13,7 +13,7 @@ def run():
 
     model_manager = StandardModelManager(model, criterion, optimizer)
 
-    dataset = Cifar10()
+    dataset = Cifar10Loader()
     training_data = dataset.getTrainingData()
     validation_data = dataset.getValidationData()
 
