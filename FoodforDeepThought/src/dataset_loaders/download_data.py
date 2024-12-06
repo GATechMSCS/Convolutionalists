@@ -1,6 +1,6 @@
 # from openimages.download import download_images, download_dataset
 from download_openimages import OpenImagesLoader
-import pandas as pd
+#import pandas as pd
 
 # path_to_csv = "FoodforDeepThought/data/class-descriptions-boxable.csv"
 # food_categories = pd.read_csv(path_to_csv, header=None)
@@ -25,11 +25,7 @@ import pandas as pd
 #                  annotation_format='pascal',
 #                  limit=1000)
 
-def main():
-    oil = OpenImagesLoader(random_seed=101,
-                           batch_size=128,
-                           perc_keep=1.0)
-    oil.download_data    
-
-if __name__ == "__main__":
-    main()
+oil = OpenImagesLoader(random_seed=101,
+                       batch_size=128,
+                       perc_keep=1.0)
+oil.download_data()
