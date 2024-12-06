@@ -83,7 +83,6 @@ class OpenImagesLoader:
             num_imgs = len(class_imgs) # Number of images and annotations for current class
             
             # Shuffling data:
-
             inds_list = list(range(num_imgs)) # List of indices ranging for the total number of images
             random.shuffle(inds_list) # Shuffling indices list
             class_imgs = class_imgs[inds_list] # Shuffling class images according to shuffled inds_list
@@ -97,7 +96,7 @@ class OpenImagesLoader:
             val_imgs = class_imgs[ind_train:ind_val]
             test_imgs = class_imgs[ind_val:]
 
-            all_imgs = [(train_imgs, val_imgs, test_imgs] # All images
+            all_imgs = [train_imgs, val_imgs, test_imgs] # All images
             
             # Splitting annotations into training, validation, and testing:
             train_anns = class_anns[:ind_train]
