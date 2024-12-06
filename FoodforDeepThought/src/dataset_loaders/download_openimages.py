@@ -117,7 +117,3 @@ class OpenImagesLoader:
                 for img, ann in zip(split_imgs, split_anns):
                     shutil.copy(os.path.join(imgs_dir, img), os.path.join(split_dir_img, img))
                     shutil.copy(os.path.join(anns_dir, ann), os.path.join(split_dir_ann, ann))
-            
-
-
-        
