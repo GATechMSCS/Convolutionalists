@@ -120,3 +120,39 @@ class OpenImagesLoader:
                 for img, ann in zip(split_imgs, split_anns):
                     shutil.copy(os.path.join(imgs_dir, img), os.path.join(split_dir_img, img))
                     shutil.copy(os.path.join(anns_dir, ann), os.path.join(split_dir_ann, ann))
+
+    def get_datasets(self):
+
+        """ This function strives to get datasets to the local data directory if
+        it has not already been downloaded previously. This function also splits the datasets into training,
+        validation, and testing sets, assigning them as class variables. """
+
+        # Note - this assumes the openimages  dataset has already been downloaded to their respective directories:.
+        # If the dataset has not been downloaded, then please manually download it and place it in the directories
+        # as described in the class initialization:
+        self.train_dir = os.path.join(self.data_dir, "train")  # Directory in which dataset resides
+        self.val_dir = os.path.join(self.data_dir, "val")
+        self.test_dir = os.path.join(self.data_dir, "test")
+        train_raw = ImageFolder(self.train_dir, transform=self.transforms)
+        val_raw = ImageFolder(self.val_dir, transform=self.transforms)
+        test_raw = ImageFolder(self.test_dir, transform=self.transforms)
+
+        # Seed generator:
+        generator = torch.Generator().manual_seed(self.random_seed)
+
+        if self.perc_keep != 1.00:
+            # Calculating the limited sizes of the datasets to keep:
+            train_size = int(len(train_raw) * self.perc_keep)
+            val_size = int(len(val_raw) * self.perc_keep)
+            test_size = int(len(test_raw) * self.perc_keep)
+
+            # Decreasing the size of the datasets using random_split:
+            train_raw, _ = random_split(train_raw, [train_size, (len(train_raw)-train_size)])
+            val_raw, _ = random_split(val_raw, [val_size, (len(val_raw)-val_size)])
+            test_raw, _ = random_split(test_raw, [test_size, (len(test_raw)-test_size)])
+
+        train_set = DataLoader(train_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
+        val_set = DataLoader(val_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
+        test_set = DataLoader(test_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
+        
+        return train_set, val_set, test_set
