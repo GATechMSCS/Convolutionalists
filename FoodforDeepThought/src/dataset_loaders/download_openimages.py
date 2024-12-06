@@ -65,8 +65,8 @@ class OpenImagesLoader:
         for class_cur in self.classes:
 
             # Getting directories for the images and annotations for each class:
-            imgs_dir = os.path.join(self.data_dir, class_cur, "images")
-            anns_dir = os.path.join(self.data_dir, class_cur, "pascal")
+            imgs_dir = os.path.join(self.data_dir, class_cur.lower(), "images")
+            anns_dir = os.path.join(self.data_dir, class_cur.lower(), "pascal")
 
             # Ensuring each class has images and annotations:
             if not imgs_dir:
@@ -107,8 +107,8 @@ class OpenImagesLoader:
             for split_type, split_imgs, split_anns in zip(splits, all_imgs, all_anns):
 
                 # Creating each split directory for images and annotations for current class:
-                split_dir_img = os.path.join(self.data_dir, split_type, class_cur, "images")
-                split_dir_ann = os.path.join(self.data_dir, split_type, class_cur, "annotations")
+                split_dir_img = os.path.join(self.data_dir, split_type, class_cur.lower(), "images")
+                split_dir_ann = os.path.join(self.data_dir, split_type, class_cur.lower(), "annotations")
 
                 os.makedirs(split_dir_img, exist_ok=True)
                 os.makedirs(split_dir_ann, exist_ok=True)

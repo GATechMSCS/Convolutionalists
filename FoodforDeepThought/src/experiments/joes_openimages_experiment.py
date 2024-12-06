@@ -8,8 +8,8 @@ from ..model_managers.standard_model_manager import StandardModelManager
 
 def run():
     dataset_loader = OpenImagesLoader()
-
     dataset_loader.download_data()
+    dataset_loader.split_data()
 
 
 if __name__ == "__main__":
