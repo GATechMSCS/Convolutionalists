@@ -26,7 +26,7 @@ class OpenImagesLoader:
             "Strawberry", "Tomato", "Lemon", "Banana", "Orange", "Peach", "Mango",
             "Pineapple", "Grapefruit", "Pomegranate", "Watermelon", "Cantaloupe",
             "Egg", "Bagel", "Bread", "Doughnut", "Croissant",
-            "Tart", "Mushroom", "Pasta", "Pizza", "Seafood", "Squid",
+            "Tart", "Mushroom", "Pasta", "Pizza", "Squid",
             "Oyster", "Lobster", "Shrimp", "Crab", "Taco", "Cooking spray",
             "Cucumber", "Radish", "Artichoke", "Potato", "Asparagus",
             "Pumpkin", "Zucchini", "Cabbage", "Carrot", "Salad",
