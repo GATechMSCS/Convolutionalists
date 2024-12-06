@@ -46,7 +46,7 @@ class OpenImagesLoader:
             else:
                 print(f'Skipped {class_name}, data already downloaded')
 
-    def split_data(self):
+    def split_data(self, keep_class_dirs=True):
 
         """ This function splits the downloaded Open Image dataset, and splits each class into training, validation, and testing sets.
             This function assumes that the required data has already been downloaded."""
@@ -105,10 +105,13 @@ class OpenImagesLoader:
             
             # Looping through all split types and corresponding split images:
             for split_type, split_imgs, split_anns in zip(splits, all_imgs, all_anns):
-
-                # Creating each split directory for images and annotations for current class:
-                split_dir_img = os.path.join(self.data_dir, split_type, class_cur.lower(), "images")
-                split_dir_ann = os.path.join(self.data_dir, split_type, class_cur.lower(), "annotations")
+                if keep_class_dirs:
+                    # Creating each split directory for images and annotations for current class:
+                    split_dir_img = os.path.join(self.data_dir, split_type, class_cur.lower(), "images")
+                    split_dir_ann = os.path.join(self.data_dir, split_type, class_cur.lower(), "annotations")
+                else:
+                    split_dir_img = os.path.join(self.data_dir, split_type, "images")
+                    split_dir_ann = os.path.join(self.data_dir, split_type, "annotations")
 
                 os.makedirs(split_dir_img, exist_ok=True)
                 os.makedirs(split_dir_ann, exist_ok=True)
