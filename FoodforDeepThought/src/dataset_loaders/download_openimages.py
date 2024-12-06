@@ -10,7 +10,7 @@ class OpenImagesLoader:
         self.random_seed = random_seed
         self.batch_size = batch_size
         self.perc_keep = perc_keep  # Percentage of dataset to be kept (number between 0 and 1)
-        self.num_images_per_class = 750
+        self.num_images_per_class = num_images_per_class
         self.transforms = transforms.Compose(
             [
                 transforms.Resize((224, 224)),
