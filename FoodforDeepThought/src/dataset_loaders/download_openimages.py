@@ -70,12 +70,10 @@ class OpenImagesLoader:
 
             # Ensuring each class has images and annotations:
             if not imgs_dir:
-                print(f"Images do not exist for {class_cur}!")
-                continue
+                raise Exception(f'Images do not exist for {class_cur}!')
 
             if not anns_dir:
-                print(f"Annotations do not exist for {class_cur}!")
-                continue
+                raise Exception(f'Annotations do not exist for {class_cur}!')
 
             class_imgs = os.listdir(imgs_dir) # Images for current class
             class_anns = os.listdir(anns_dir) # Annotations for current class
@@ -85,9 +83,9 @@ class OpenImagesLoader:
             # Shuffling data:
             inds_list = list(range(num_imgs)) # List of indices ranging for the total number of images
             random.shuffle(inds_list) # Shuffling indices list
-            class_imgs = class_imgs[inds_list] # Shuffling class images according to shuffled inds_list
-            class_anns = class_anns[inds_list] # Shuffling class annotations according to shuffled inds_list
-                        
+            class_imgs = [class_imgs[i] for i in inds_list] # Shuffling class images according to shuffled inds_list
+            class_anns = [class_anns[i] for i in inds_list] # Shuffling class annotations according to shuffled inds_list
+
             ind_train = int(0.8 * num_imgs) # Ending index for the training images
             ind_val = ind_train + int(0.1 * num_imgs) # Ending index for the validation images
 
