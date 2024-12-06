@@ -29,7 +29,7 @@ class OpenImagesLoader:
             "Egg (Food)", "Bagel", "Bread", "Doughnut", "Croissant",
             "Tart", "Mushroom", "Pasta", "Pizza", "Squid",
             "Oyster", "Lobster", "Shrimp", "Crab", "Taco", "Cooking spray",
-            "Cucumber", "Radish", "Artichoke", "Potato", "Asparagus",
+            "Cucumber", "Radish", "Artichoke", "Potato", "Garden Asparagus",
             "Pumpkin", "Zucchini", "Cabbage", "Carrot", "Salad",
             "Broccoli", "Bell pepper", "Winter melon", "Honeycomb",
             "Hamburger", "Submarine sandwich", "Cheese", "Milk", "Sushi"
