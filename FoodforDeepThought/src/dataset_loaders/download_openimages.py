@@ -20,18 +20,18 @@ class OpenImagesLoader:
         )
 
         self.classes = [
-            "Hot dog", "French fries", "Waffle", "Pancake", "Burrito", "Snack", "Pretzel",
-            "Popcorn", "Cookie", "Dessert", "Muffin", "Ice cream", "Cake", "Candy",
-            "Guacamole", "Fruit", "Apple", "Grape", "Common fig", "Pear",
+            "Hot dog", "French fries", "Waffle", "Pancake", "Burrito", "Pretzel",
+            "Popcorn", "Cookie", "Muffin", "Ice cream", "Cake", "Candy",
+            "Guacamole", "Apple", "Grape", "Common fig", "Pear",
             "Strawberry", "Tomato", "Lemon", "Banana", "Orange", "Peach", "Mango",
             "Pineapple", "Grapefruit", "Pomegranate", "Watermelon", "Cantaloupe",
-            "Egg", "Baked goods", "Bagel", "Bread", "Pastry", "Doughnut", "Croissant",
-            "Tart", "Mushroom", "Pasta", "Pizza", "Seafood", "Squid", "Shellfish",
+            "Egg", "Bagel", "Bread", "Doughnut", "Croissant",
+            "Tart", "Mushroom", "Pasta", "Pizza", "Seafood", "Squid",
             "Oyster", "Lobster", "Shrimp", "Crab", "Taco", "Cooking spray",
-            "Vegetable", "Cucumber", "Radish", "Artichoke", "Potato", "Asparagus",
-            "Squash", "Pumpkin", "Zucchini", "Cabbage", "Carrot", "Salad",
-            "Broccoli", "Bell pepper", "Winter melon", "Honeycomb", "Sandwich",
-            "Hamburger", "Submarine sandwich", "Dairy", "Cheese", "Milk", "Sushi"
+            "Cucumber", "Radish", "Artichoke", "Potato", "Asparagus",
+            "Pumpkin", "Zucchini", "Cabbage", "Carrot", "Salad",
+            "Broccoli", "Bell pepper", "Winter melon", "Honeycomb",
+            "Hamburger", "Submarine sandwich", "Cheese", "Milk", "Sushi"
         ]
 
     def download_data(self):
