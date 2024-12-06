@@ -26,7 +26,7 @@ class OpenImagesLoader:
             "Guacamole", "Apple", "Grape", "Common fig", "Pear",
             "Strawberry", "Tomato", "Lemon", "Banana", "Orange", "Peach", "Mango",
             "Pineapple", "Grapefruit", "Pomegranate", "Watermelon", "Cantaloupe",
-            "Egg", "Bagel", "Bread", "Doughnut", "Croissant",
+            "Egg (Food)", "Bagel", "Bread", "Doughnut", "Croissant",
             "Tart", "Mushroom", "Pasta", "Pizza", "Squid",
             "Oyster", "Lobster", "Shrimp", "Crab", "Taco", "Cooking spray",
             "Cucumber", "Radish", "Artichoke", "Potato", "Asparagus",
@@ -38,11 +38,11 @@ class OpenImagesLoader:
     def download_data(self):
         for class_name in self.classes:
             print(f'Attempting to download {class_name} data')
-            if not os.path.isdir(os.path.join(self.data_dir, class_name)):
+            if not os.path.isdir(os.path.join(self.data_dir, class_name.lower())):
                 try:
                     download_dataset(self.data_dir, [class_name], None, annotation_format="pascal", csv_dir=None, limit=500)
                 except:
-                    print(f'An exception occured for {class_name}')
+                    print(f'ERROR! An exception occurred for {class_name}')
             else:
                 print(f'Skipped {class_name}, data already downloaded')
 
