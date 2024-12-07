@@ -209,15 +209,15 @@ class FRCNNModelManager(StandardModelManager):
                 targets = targets.to(self.device)
                 batch_size = images.shape[0]
                 # Train Batch
-                if not has_box:
-                    boxes = self.generate_hardcoded_boxes(targets)
-                    targets = self.prepare_targets(targets, boxes)                    
-                else:
-                    for i in range(len(images)):
-                        d = {}
-                        d["boxes"] = boxes[i]
-                        d["labels"] = labels[i]
-                        targets.append(d)
+                # if not has_box:
+                #     boxes = self.generate_hardcoded_boxes(targets)
+                #     targets = self.prepare_targets(targets, boxes)                    
+                # else:
+                #     for i in range(len(images)):
+                #         d = {}
+                #         d["boxes"] = boxes[i]
+                #         d["labels"] = labels[i]
+                #         targets.append(d)
                 output = self.model.forward(images, targets)
                 loss = self.criterion(output, targets[0]["labels"])
                 self.optimizer.zero_grad()

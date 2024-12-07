@@ -1,15 +1,17 @@
-import os
-import torchvision.transforms as transforms
+from torchvision.transforms.functional import to_pil_image
+from torchvision.io import read_image, ImageReadMode
 from openimages.download import download_dataset
+from torchvision.datasets import ImageFolder
+import torchvision.transforms as transforms
+from torch.utils.data import random_split
+from torch.utils.data import DataLoader
+from torch.utils.data import Dataset
+import xml.etree.ElementTree as ET
+from PIL import Image
 import random
 import shutil
-from torchvision.datasets import ImageFolder
-from torch.utils.data import random_split
 import torch
-from torch.utils.data import DataLoader
-import xml.etree.ElementTree as ET
-from torchvision.io import read_image, ImageReadMode
-from torchvision.transforms.functional import to_pil_image
+import os
 
 class OpenImagesLoader:
     def __init__(self, random_seed = 101, batch_size = 128, perc_keep = 1.0, num_images_per_class=500):
@@ -146,9 +148,6 @@ class OpenImagesLoader:
                     shutil.copy(os.path.join(imgs_dir, img), os.path.join(split_dir_img, img))
                     shutil.copy(os.path.join(anns_dir, ann), os.path.join(split_dir_ann, ann))
 
-
-
-
     def split_data_reduced(self, keep_class_dirs=True):
 
         """ This function splits the downloaded Open Image dataset, and splits each class into training, validation, and testing sets.
@@ -235,9 +234,6 @@ class OpenImagesLoader:
 
         print(f"Dataset has been reduced!")
 
-
-
-
     def get_datasets(self):
 
         """ This function splits the datasets into training, validation, and testing sets. """
@@ -268,8 +264,6 @@ class OpenImagesLoader:
         test_set = DataLoader(test_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
         
         return train_set, val_set, test_set
-
-
 
     def get_dataloaders(self):
 
@@ -343,7 +337,6 @@ class OpenImagesLoader:
         
         return loaders[0], loaders[1], loaders[2]
 
-
     def process_ann_file(self, file_path):
         """ This function parses the annotation Pascal XML file to retrieve the class label and bounding box locations. 
         
@@ -388,8 +381,6 @@ class OpenImagesLoader:
 
         return ann_dict
 
-        
-
 class DatasetWrapper:
     """ Class used to wrap each dataset (list of tuples of (image, annotations)) as a class compatible with
         PyTorch's DataLoader object. """
@@ -402,3 +393,53 @@ class DatasetWrapper:
 
     def __getitem__(self, ind):
         return self.dataset[ind]
+
+# FOR FASTER-RCNN
+class ImageLoaderFRCNN(Dataset):
+    def __init__(self, root, tforms=None):
+        self.root = root
+        self.tforms = tforms
+        self.imgs = list(sorted(os.listdir(os.path.join(self.root, "images"))))
+        self.annotations = list(sorted(os.listdir(os.path.join(self.root, "annotations"))))
+
+    def __getitem__(self, idx):
+        img_path = os.path.join(self.root, "images", self.imgs[idx])
+        ann_path = os.path.join(self.root, "annotations", self.annotations[idx])
+        
+        img = Image.open(img_path).convert("RGB")
+        
+        # Parse the XML annotation file
+        tree = ET.parse(ann_path)
+        root = tree.getroot()
+        
+        boxes = []
+        labels = []
+        for obj in root.findall('object'):
+            label = obj.find('name').text
+            bbox = obj.find('bndbox')
+            xmin = float(bbox.find('xmin').text)
+            ymin = float(bbox.find('ymin').text)
+            xmax = float(bbox.find('xmax').text)
+            ymax = float(bbox.find('ymax').text)
+            boxes.append([xmin, ymin, xmax, ymax])
+            labels.append(self.classes.index(label))
+        
+        boxes = torch.as_tensor(boxes, dtype=torch.float32)
+        labels = torch.as_tensor(labels, dtype=torch.int64)
+        
+        target = {}
+        target["boxes"] = boxes
+        target["labels"] = labels
+        # target["image_id"] = torch.tensor([idx])
+        # target["area"] = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
+        # target["iscrowd"] = torch.zeros((len(boxes),), dtype=torch.int64)
+        
+        if self.tforms is not None:
+            img, target = self.tforms(img, target)
+        
+        return img, target
+
+    def __len__(self):
+        return len(self.imgs)
+
+    
