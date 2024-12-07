@@ -39,6 +39,10 @@ class OpenImagesLoader:
             "Hamburger", "Submarine sandwich", "Cheese", "Milk", "Sushi"
         ]
 
+        self.train_dir = os.path.join(self.data_dir, "train") # Directory in which train dataset resides
+        self.val_dir = os.path.join(self.data_dir, "val") # Directory in which validation dataset resides
+        self.test_dir = os.path.join(self.data_dir, "test") # Directory in which test dataset resides
+
     def download_data(self, annotation_format='pascal'):
         for class_name in self.classes:
             print(f'Attempting to download {class_name} data')
@@ -128,18 +132,14 @@ class OpenImagesLoader:
                     shutil.copy(os.path.join(imgs_dir, img), os.path.join(split_dir_img, img))
                     shutil.copy(os.path.join(anns_dir, ann), os.path.join(split_dir_ann, ann))
 
+
     def get_datasets(self):
 
-        """ This function strives to get datasets to the local data directory if
-        it has not already been downloaded previously. This function also splits the datasets into training,
-        validation, and testing sets, assigning them as class variables. """
+        """ This function splits the datasets into training, validation, and testing sets. """
 
-        # Note - this assumes the openimages  dataset has already been downloaded to their respective directories:.
+        # Note - this assumes the openimages dataset has already been downloaded to their respective directories:.
         # If the dataset has not been downloaded, then please manually download it and place it in the directories
         # as described in the class initialization:
-        self.train_dir = os.path.join(self.data_dir, "train")  # Directory in which dataset resides
-        self.val_dir = os.path.join(self.data_dir, "val")
-        self.test_dir = os.path.join(self.data_dir, "test")
         train_raw = ImageFolder(self.train_dir, transform=self.transforms)
         val_raw = ImageFolder(self.val_dir, transform=self.transforms)
         test_raw = ImageFolder(self.test_dir, transform=self.transforms)
@@ -163,3 +163,71 @@ class OpenImagesLoader:
         test_set = DataLoader(test_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
         
         return train_set, val_set, test_set
+
+
+
+    def get_datasets2(self):
+
+        """ This function splits the datasets into training, validation, and testing sets. """
+
+        # Note - this assumes the openimages dataset has already been downloaded to their respective directories:.
+        # If the dataset has not been downloaded, then please manually download it and place it in the directories
+        # as described in the class initialization:
+
+        # train_raw = ImageFolder(self.train_dir, transform=self.transforms)
+        # val_raw = ImageFolder(self.val_dir, transform=self.transforms)
+        # test_raw = ImageFolder(self.test_dir, transform=self.transforms)
+
+        dirs = [self.train_dir, self.val_dir, self.test_dir]
+
+        datasets = []
+
+        for dir_cur in dirs:
+            
+            img_dir = os.path.join(dir_cur, "images")
+            ann_dir = os.path.join(dir_cur, "annotations")
+            dataset_cur = []
+            
+            img_list = os.listdir(img_dir)
+            ann_list = os.listdir(ann_dir)
+
+            datasets.append(dataset_cur)
+
+            for img_cur, ann_cur in zip(img_list, ann_list):
+            
+                img_cur = self.transforms(img_cur)
+
+                # Processing annotations:
+                ann_path = os.path.join(ann_dir, ann_cur)       
+                bounding_box, label = self.process_ann_file(ann_path)
+
+                ann_dict = {}
+
+
+
+
+
+        # Seed generator:
+        # generator = torch.Generator().manual_seed(self.random_seed)
+
+        
+        # train_set = DataLoader(train_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
+        # val_set = DataLoader(val_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
+        # test_set = DataLoader(test_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
+        
+        # return train_set, val_set, test_set
+
+
+    def process_ann_file(self, file_path):
+        """ This function parses the annotation Pascal XML file to retrieve the class label and bounding box locations. 
+        
+        Inputs:
+        file_path: Path of the annotation XML file
+
+        Outputs:
+        bounding_box, label: Bounding box and label information contained within the annotation file
+        
+        """
+
+
+    
