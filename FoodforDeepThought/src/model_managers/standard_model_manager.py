@@ -196,28 +196,30 @@ class FRCNNModelManager(StandardModelManager):
         self.criterion = criterion.to(self.device)
         self.optimizer = optimizer
 
-    def train(self, training_data_loader, validation_data_loader=None, epochs=10):
+    def train(self, training_data_loader, validation_data_loader=None, epochs=10, has_box=False):
 
         training_accs = [] # List of training accuracy values
         val_accs = [] # List of validation accuracy values
-        
+        self.model.train()
         for epoch in tqdm(range(epochs)):
             display_epoch = epoch + 1
             targets = []
-            for idx, (data, target) in enumerate(training_data_loader):
+            for idx, (images, targets) in enumerate(training_data_loader):
+                images = images.to(self.device)
+                targets = targets.to(self.device)
+                batch_size = images.shape[0]
                 # Train Batch
-                targ = {"labels": target.to(self.device)}
-                targ["boxes"] = self.generate_hardcoded_boxes(targ["labels"])
-                targets.append(targ)
-                data = data.to(self.device)
-                output = self.model.forward(data, targets)
+                if not has_box:
+                    boxes = self.generate_hardcoded_boxes(targets)
+                    targets = self.prepare_targets(targets, boxes)                    
+
+                output = self.model.forward(images, targets)
                 loss = self.criterion(output, targets[0]["labels"])
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
 
                 # Check Accuracy
-                batch_size = target[0]["labels"].shape[0]
                 _, pred = torch.max(output, dim=-1)
                 correct = pred.eq(target[0]["labels"]).sum() * 1.0
                 acc = correct / batch_size
@@ -267,17 +269,17 @@ class FRCNNModelManager(StandardModelManager):
 
     def generate_hardcoded_boxes(self, target):
         img_sz = 224
-        mrgn = int(img_sz * .90)
+        mrgn = int(img_sz * .10)
         x1, y1 = mrgn, mrgn
         x2, y2 = img_sz - mrgn, img_sz - mrgn
         
         boxes = torch.tensor([[x1, y1, x2, y2]] * len(target), dtype=torch.float32)
         return boxes
 
-    def prepare_targets(self, target):
-        boxes = generate_hardcoded_boxes(target)
-        roi = []
-        for i in range(len(target)):
-            box = {'boxes': boxes[i].unsqueeze(0),}
-            roi.append(box)
-        return roi
+    def prepare_targets(self, labels, boxes):
+        targets = []
+        for i in range(len(labels)):
+            target = {"boxes": boxes[i].unsqueeze(0),
+                      "labels": labels[i]}
+            targets.append(target)
+        return targets
