@@ -11,7 +11,6 @@ from torch.utils.data import DataLoader
 class OpenImagesLoader:
     def __init__(self, random_seed = 101, batch_size = 128, perc_keep = 1.0, num_images_per_class=500):
         self.data_dir = os.path.join("data", "openimages")  # Directory in which dataset resides
-        self.csv_dir = os.path.join("data", "openimages_csv_dir")
         self.random_seed = random_seed
         self.batch_size = batch_size
         self.perc_keep = perc_keep  # Percentage of dataset to be kept (number between 0 and 1)
@@ -43,12 +42,13 @@ class OpenImagesLoader:
         self.val_dir = os.path.join(self.data_dir, "val") # Directory in which validation dataset resides
         self.test_dir = os.path.join(self.data_dir, "test") # Directory in which test dataset resides
 
-    def download_data(self, annotation_format='pascal'):
+    def download_data(self, annotation_format='pascal', csv_dir=None):
+        csv_dir = os.path.join("data", csv_dir) if csv_dir else None
         for class_name in self.classes:
             print(f'Attempting to download {class_name} data')
             if not os.path.isdir(os.path.join(self.data_dir, class_name.lower())):
                 try:
-                    download_dataset(self.data_dir, [class_name], None, annotation_format=self.annotation_format, csv_dir=None, limit=500)
+                    download_dataset(self.data_dir, [class_name], None, annotation_format=self.annotation_format, csv_dir=csv_dir, limit=500)
                 except:
                     print(f'ERROR! An exception occurred for {class_name}')
             else:
