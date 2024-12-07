@@ -67,6 +67,7 @@ class OpenImagesLoader:
 
         # Iterating through each class:
         for class_cur in self.classes:
+            print(f'Splitting data for class {class_cur}')
 
             # Getting directories for the images and annotations for each class:
             imgs_dir = os.path.join(self.data_dir, class_cur.lower(), "images")
@@ -81,6 +82,8 @@ class OpenImagesLoader:
 
             class_imgs = os.listdir(imgs_dir) # Images for current class
             class_anns = os.listdir(anns_dir) # Annotations for current class
+            class_imgs.sort()
+            class_anns.sort()
 
             num_imgs = len(class_imgs) # Number of images and annotations for current class
             
