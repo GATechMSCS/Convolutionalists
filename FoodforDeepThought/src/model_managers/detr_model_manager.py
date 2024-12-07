@@ -13,7 +13,6 @@ class DETRModelManager:
             self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     
         self.model = model.to(self.device)
-        self.criterion = criterion.to(self.device)
         self.optimizer = optimizer
         self.best_accuracy = 0.0
         self.best_model_state_dict = None
