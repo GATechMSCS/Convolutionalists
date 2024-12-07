@@ -48,9 +48,9 @@ class OpenImagesLoader:
             print(f'Attempting to download {class_name} data')
             if not os.path.isdir(os.path.join(self.data_dir, class_name.lower())):
                 try:
-                    download_dataset(self.data_dir, [class_name], None, annotation_format=self.annotation_format, csv_dir=csv_dir, limit=500)
-                except:
-                    print(f'ERROR! An exception occurred for {class_name}')
+                    download_dataset(self.data_dir, [class_name], annotation_format=annotation_format, csv_dir=csv_dir, limit=500)
+                except Exception as e:
+                    print(f'An exception occurred for {class_name}. ERROR: {e}')
             else:
                 print(f'Skipped {class_name}, data already downloaded')
 
