@@ -9,7 +9,7 @@ import torch
 from torch.utils.data import DataLoader
 
 class OpenImagesLoader:
-    def __init__(self, random_seed = 101, batch_size = 128, perc_keep = 1.0, num_images_per_class=500):
+    def __init__(self, random_seed = 101, batch_size = 128, perc_keep = 1.0, num_images_per_class=500, annotation_format="pascal"):
         self.data_dir = os.path.join("data", "openimages")  # Directory in which dataset resides
         self.csv_dir = os.path.join("data", "openimages_csv_dir")
         self.random_seed = random_seed
@@ -23,6 +23,7 @@ class OpenImagesLoader:
                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # ImageNet's normalization statistics
             ]
         )
+        self.annotation_format = annotation_format
 
         self.classes = [
             "Hot dog", "French fries", "Waffle", "Pancake", "Burrito", "Pretzel",
@@ -44,7 +45,7 @@ class OpenImagesLoader:
             print(f'Attempting to download {class_name} data')
             if not os.path.isdir(os.path.join(self.data_dir, class_name.lower())):
                 try:
-                    download_dataset(self.data_dir, [class_name], None, annotation_format="pascal", csv_dir=None, limit=500)
+                    download_dataset(self.data_dir, [class_name], None, annotation_format=self.annotation_format, csv_dir=None, limit=500)
                 except:
                     print(f'ERROR! An exception occurred for {class_name}')
             else:
