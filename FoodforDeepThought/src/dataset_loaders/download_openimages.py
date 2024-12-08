@@ -461,7 +461,6 @@ class ImageLoaderFRCNN(Dataset):
         for obj in root.findall('object'):
             label = obj.find('name').text.capitalize()
             if "food" in label:
-                print(label)
                 label = label.replace("food", "Food")
             bbox = obj.find('bndbox')
             xmin = float(bbox.find('xmin').text)
