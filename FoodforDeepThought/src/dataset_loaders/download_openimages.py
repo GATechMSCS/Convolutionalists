@@ -395,6 +395,26 @@ class OpenImagesLoader:
             yaml.dump(yaml_data, f, default_flow_style=False)
         print(f"YAML file saved to '{yaml_output_path}'.")
 
+    def getTargets(self, split='train'):
+        anns = []
+
+        ann_filename = os.path.join(self.data_dir, split, 'annotations/%s.xml')
+        img_filename = os.path.join(self.data_dir, split, 'images/%s.jpg')
+
+        dir_path = os.path.dirname(ann_filename)
+        ann_files = os.listdir(dir_path)
+
+        for file in ann_files:
+            img_id = file.split('.')[0]
+            filename = img_filename % img_id
+            xml_path = ann_filename % img_id
+
+            ans = self.process_ann_file(xml_path)
+            ans['filename'] = filename
+            anns.append(ans)
+
+        return anns
+
 
 # DON'T THINK ANYONE IS USING THIS. IT'S OLD AND NOT USEFUL
     # def get_datasets(self):
