@@ -55,6 +55,10 @@ class OpenImagesLoader:
         self.val_dir = os.path.join(self.data_dir, "val") # Directory in which validation dataset resides
         self.test_dir = os.path.join(self.data_dir, "test") # Directory in which test dataset resides
 
+        self.train_red_dir = os.path.join(self.data_dir, "train_reduced")  # Directory for reduced train dataset
+        self.val_red_dir = os.path.join(self.data_dir, "val_reduced")  # Directory for reduced validation dataset
+        self.test_red_dir = os.path.join(self.data_dir, "test_reduced")  # Directory for reduced test dataset
+
     def download_data(self, csv_dir=None, batch_download=False):
         csv_dir = os.path.join("data", csv_dir) if csv_dir else None
         if batch_download:
