@@ -446,10 +446,6 @@ class ImageLoaderFRCNN(Dataset):
         self.imgs = list(sorted(os.listdir(os.path.join(self.root, "images"))))
         self.annotations = list(sorted(os.listdir(os.path.join(self.root, "annotations"))))
 
-        self.class_2_index = {}
-        for i, class_name in enumerate(self.classes):
-            self.class_2_index[class_name.lower()] = i
-
     def __getitem__(self, idx):
         img_path = os.path.join(self.root, "images", self.imgs[idx])
         ann_path = os.path.join(self.root, "annotations", self.annotations[idx])
