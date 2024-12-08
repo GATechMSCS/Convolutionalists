@@ -182,10 +182,10 @@ class FRCNNModelManager(StandardModelManager):
     """class specifically to address the training problems with Faster-RCNN ie it requires target to be a dictionary. It also needs ROI information. Inherits from StandardModelManager
 
     Args:
-        StandardModelManager (object): Performs training, prediction, saving, loading, and learning curves
+        FRCNNModelManager (object): Performs training, prediction, saving, loading, and learning curves
     """
     
-    def __init__(self, model, criterion, optimizer, device=None):
+    def __init__(self, model, metric, optimizer, device=None):
 
         if device:
             self.device = device
@@ -193,98 +193,72 @@ class FRCNNModelManager(StandardModelManager):
             self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     
         self.model = model.to(self.device)
-        self.criterion = criterion.to(self.device)
+        self.metric = metric.to(self.device)
         self.optimizer = optimizer
 
     def train(self, training_data_loader, validation_data_loader=None, epochs=10, has_box=False):
 
         training_accs = [] # List of training accuracy values
         val_accs = [] # List of validation accuracy values
-        self.model.train()
         for epoch in tqdm(range(epochs)):
+            self.model.train()
             display_epoch = epoch + 1
-            targets = []
-            for idx, (images, targets) in enumerate(training_data_loader):
-                images = images.to(self.device)
-                targets = targets.to(self.device)
-                batch_size = images.shape[0]
-                # Train Batch
-                if not has_box:
-                    boxes = self.generate_hardcoded_boxes(targets)
-                    targets = self.prepare_targets(targets, boxes)                    
-                else:
-                    for i in range(len(images)):
-                        d = {}
-                        d["boxes"] = boxes[i]
-                        d["labels"] = labels[i]
-                        targets.append(d)
+            total_loss = 0
+            for images, targets in training_data_loader:
+                images = list(image.to(self.device) for image in images)
+                targets = [{k: v.to(self.device) for k, v in t.items()} for t in targets]
                 output = self.model.forward(images, targets)
-                loss = self.criterion(output, targets[0]["labels"])
+                losses = sum(loss for loss in output.values())
                 self.optimizer.zero_grad()
-                loss.backward()
+                losses.backward()
                 self.optimizer.step()
 
-                # Check Accuracy
-                _, pred = torch.max(output, dim=-1)
-                correct = pred.eq(target[0]["labels"]).sum() * 1.0
-                acc = correct / batch_size
+                total_loss += losses.item()
 
-                if idx % 10 == 0:
-                    print(f'Epoch {display_epoch} Batch Training Accuracy: {acc:.4f}')
+            if display_epoch % 10 == 0:
+                print(f'Epoch {display_epoch} Total Loss: {total_loss:.4f}')
 
             # Appending the training accuracy at the end of the current epoch to the list of training accuracy values:
-            training_accs.append(acc)
+            # training_accs.append(acc)
             
             if validation_data_loader:
-                num_correct = 0
-                num_samples = 0
-                for idx, (data, target) in enumerate(validation_data_loader):
-                    target = target.to(self.device)
-                    with torch.no_grad():
-                        output = self.model.forward(data.to(self.device))
-                        loss = self.criterion(output, target)
+                # num_correct = 0
+                # num_samples = 0
+                model.eval()
+                val_loss = 0
+                with torch.no_grad():
+                    for images, target in validation_data_loader:
+                        #target = target.to(self.device)
+                        images = list(image.to(device) for image in images)
+                        outputs = self.model.forward(images)
+                        val_loss += sum(loss for loss in loss_dict.values()).item()
+                        #output = self.model.forward(data.to(self.device))
+                        #loss = self.criterion(output, target)
 
                     # Check Accuracy
-                    batch_size = target.shape[0]
-                    _, pred = torch.max(output, dim=-1)
-                    correct = pred.eq(target).sum() * 1.0
-                    acc = correct / batch_size
-                    num_correct += correct
-                    num_samples += batch_size
+                #     batch_size = target.shape[0]
+                #     _, pred = torch.max(output, dim=-1)
+                #     correct = pred.eq(target).sum() * 1.0
+                #     acc = correct / batch_size
+                #     num_correct += correct
+                #     num_samples += batch_size
 
-                acc = num_correct / num_samples
+                # acc = num_correct / num_samples
 
                 print(f'Epoch {display_epoch} Batch Validation Accuracy: {acc:.4f}')
                 print('===========================================================')
 
-                if acc > self.best_accuracy:
-                    self.best_accuracy = acc
-                    self.best_model_state_dict = copy.deepcopy(self.model.state_dict())
+                # if acc > self.best_accuracy:
+                #     self.best_accuracy = acc
+                #     self.best_model_state_dict = copy.deepcopy(self.model.state_dict())
 
             # Appending the validation accuracy for the current epoch to the list of validation accuracy values:
-            val_accs.append(acc)
+            # val_accs.append(acc)
         
         # Load best state after training for use
-        if self.best_model_state_dict is not None:
-            self.model.load_state_dict(self.best_model_state_dict)
+        # if self.best_model_state_dict is not None:
+        #     self.model.load_state_dict(self.best_model_state_dict)
 
         # Setting the training and validation accuracy lists to their respective class variables:
-        self.training_accs = training_accs
-        self.val_accs = val_accs
-
-    def generate_hardcoded_boxes(self, target):
-        img_sz = 224
-        mrgn = int(img_sz * .10)
-        x1, y1 = mrgn, mrgn
-        x2, y2 = img_sz - mrgn, img_sz - mrgn
-        
-        boxes = torch.tensor([[x1, y1, x2, y2]] * len(target), dtype=torch.float32)
-        return boxes
-
-    def prepare_targets(self, labels, boxes):
-        targets = []
-        for i in range(len(labels)):
-            target = {"boxes": boxes[i].unsqueeze(0),
-                      "labels": labels[i]}
-            targets.append(target)
-        return targets
+        # self.training_accs = training_accs
+        # self.val_accs = val_accs
