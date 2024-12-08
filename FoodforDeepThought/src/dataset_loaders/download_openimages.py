@@ -12,9 +12,11 @@ import random
 import shutil
 import torch
 import os
+from torch.utils.data import DataLoader
+import yaml
 
 class OpenImagesLoader:
-    def __init__(self, random_seed = 101, batch_size = 128, perc_keep = 1.0, num_images_per_class=500):
+    def __init__(self, random_seed = 101, batch_size = 128, perc_keep = 1.0, num_images_per_class=500, annotation_format="pascal"):
         self.data_dir = os.path.join("data", "openimages")  # Directory in which dataset resides
         self.random_seed = random_seed
         self.batch_size = batch_size
@@ -26,6 +28,7 @@ class OpenImagesLoader:
                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # ImageNet's normalization statistics
             ]
         )
+        self.annotation_format = annotation_format
 
         self.classes = [
             "Hot dog", "French fries", "Waffle", "Pancake", "Burrito", "Pretzel",
@@ -52,23 +55,28 @@ class OpenImagesLoader:
         self.val_dir = os.path.join(self.data_dir, "val") # Directory in which validation dataset resides
         self.test_dir = os.path.join(self.data_dir, "test") # Directory in which test dataset resides
 
-        self.train_red_dir = os.path.join(self.data_dir, "train_reduced") # Directory in which train dataset resides
-        self.val_red_dir = os.path.join(self.data_dir, "val_reduced") # Directory in which validation dataset resides
-        self.test_red_dir = os.path.join(self.data_dir, "test_reduced") # Directory in which test dataset resides
-
-    def download_data(self, annotation_format='pascal', csv_dir=None):
+    def download_data(self, csv_dir=None, batch_download=False):
         csv_dir = os.path.join("data", csv_dir) if csv_dir else None
-
-    def download_data(self, annotation_format='pascal'):
-        for class_name in self.classes:
-            print(f'Attempting to download {class_name} data')
-            if not os.path.isdir(os.path.join(self.data_dir, class_name.lower())):
+        if batch_download:
+            print('Attempting to download the Open Images dataset')
+            if not os.path.isdir(self.data_dir):
                 try:
-                    download_dataset(self.data_dir, [class_name], annotation_format=annotation_format, csv_dir=csv_dir, limit=500)
+                    download_dataset(self.data_dir, self.classes, annotation_format=self.annotation_format, csv_dir=csv_dir, limit=500)
                 except Exception as e:
-                    print(f'An exception occurred for {class_name}. ERROR: {e}')
+                    print(f'An exception occurred while downloading the dataset. ERROR: {e}')
             else:
-                print(f'Skipped {class_name}, data already downloaded')
+                print('Skipped downloading the dataset, data already downloaded')
+        else:
+            for class_name in self.classes:
+                print(f'Attempting to download {class_name} data')
+                if not os.path.isdir(os.path.join(self.data_dir, class_name.lower())):
+                    try:
+                        download_dataset(self.data_dir, [class_name], annotation_format=self.annotation_format, csv_dir=csv_dir, limit=500)
+                    except Exception as e:
+                        print(f'An exception occurred for {class_name}. ERROR: {e}')
+                else:
+                    print(f'Skipped {class_name}, data already downloaded')
+    
 
     def split_data(self, keep_class_dirs=True):
 
@@ -79,6 +87,7 @@ class OpenImagesLoader:
         random.seed(self.random_seed)
         
         splits = ["train", "val", "test"]
+        annotation_dir = "annotations" if self.annotation_format == "pascal" else "labels"
 
         # Making folders for each of the splits:
         for split in splits:
@@ -91,7 +100,7 @@ class OpenImagesLoader:
 
             # Getting directories for the images and annotations for each class:
             imgs_dir = os.path.join(self.data_dir, class_cur.lower(), "images")
-            anns_dir = os.path.join(self.data_dir, class_cur.lower(), "pascal")
+            anns_dir = os.path.join(self.data_dir, class_cur.lower(), self.annotation_format)
 
             # Ensuring each class has images and annotations:
             if not imgs_dir:
@@ -135,10 +144,10 @@ class OpenImagesLoader:
                 if keep_class_dirs:
                     # Creating each split directory for images and annotations for current class:
                     split_dir_img = os.path.join(self.data_dir, split_type, class_cur.lower(), "images")
-                    split_dir_ann = os.path.join(self.data_dir, split_type, class_cur.lower(), "annotations")
+                    split_dir_ann = os.path.join(self.data_dir, split_type, class_cur.lower(), annotation_dir)
                 else:
                     split_dir_img = os.path.join(self.data_dir, split_type, "images")
-                    split_dir_ann = os.path.join(self.data_dir, split_type, "annotations")
+                    split_dir_ann = os.path.join(self.data_dir, split_type, annotation_dir)
 
                 os.makedirs(split_dir_img, exist_ok=True)
                 os.makedirs(split_dir_ann, exist_ok=True)
@@ -158,6 +167,7 @@ class OpenImagesLoader:
         random.seed(self.random_seed)
         
         splits = ["train_reduced", "val_reduced", "test_reduced"]
+        annotation_dir = "annotations" if self.annotation_format == "pascal" else "labels"
         
         # Making folders for each of the splits:
         for split in splits:
@@ -170,7 +180,7 @@ class OpenImagesLoader:
 
             # Getting directories for the images and annotations for each class:
             imgs_dir = os.path.join(self.data_dir, class_cur.lower(), "images")
-            anns_dir = os.path.join(self.data_dir, class_cur.lower(), "pascal")
+            anns_dir = os.path.join(self.data_dir, class_cur.lower(), self.annotation_format)
 
             # Ensuring each class has images and annotations:
             if not imgs_dir:
@@ -219,10 +229,10 @@ class OpenImagesLoader:
                 if keep_class_dirs:
                     # Creating each split directory for images and annotations for current class:
                     split_dir_img = os.path.join(self.data_dir, split_type, class_cur.lower(), "images")
-                    split_dir_ann = os.path.join(self.data_dir, split_type, class_cur.lower(), "annotations")
+                    split_dir_ann = os.path.join(self.data_dir, split_type, class_cur.lower(), annotation_dir)
                 else:
                     split_dir_img = os.path.join(self.data_dir, split_type, "images")
-                    split_dir_ann = os.path.join(self.data_dir, split_type, "annotations")
+                    split_dir_ann = os.path.join(self.data_dir, split_type, annotation_dir)
 
                 os.makedirs(split_dir_img, exist_ok=True)
                 os.makedirs(split_dir_ann, exist_ok=True)
@@ -349,6 +359,38 @@ class OpenImagesLoader:
         ann_dict['labels'] = labels
 
         return ann_dict
+    
+    def create_yaml_from_file(self, obj_names_file="darknet_obj_names.txt"):
+        """
+        Create a YOLO-compatible data.yaml file using classes from darknet_obj_names.txt.
+
+        Args:
+            data_dir (str): Root directory containing the dataset splits (train, val, test).
+            obj_names_file (str): Text file with classes downloaded.
+        """
+        data_dir = self.data_dir
+        class_list = os.path.join(os.path.abspath(data_dir), obj_names_file)
+        yaml_output_path = os.path.join(os.path.abspath(data_dir), "data.yaml")
+        
+        # Read the classes from the darknet_obj_names.txt file
+        with open(class_list, "r") as f:
+            classes = [line.strip() for line in f.readlines() if line.strip()]  # Remove empty lines and strip whitespace
+
+        # Construct the YAML dictionary
+        yaml_data = {
+            "path": os.path.abspath(data_dir),
+            "train": os.path.join(os.path.abspath(data_dir), "train/images"),
+            "val": os.path.join(os.path.abspath(data_dir), "val/images"),
+            "test": os.path.join(os.path.abspath(data_dir), "test/images"),
+            "nc": len(classes),
+            "names": classes
+        }
+
+        # Write the YAML dictionary to a file
+        with open(yaml_output_path, "w") as f:
+            yaml.dump(yaml_data, f, default_flow_style=False)
+        print(f"YAML file saved to '{yaml_output_path}'.")
+
 
 # DON'T THINK ANYONE IS USING THIS. IT'S OLD AND NOT USEFUL
     # def get_datasets(self):
