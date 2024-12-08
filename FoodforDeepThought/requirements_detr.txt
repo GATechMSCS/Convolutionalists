@@ -1,0 +1,14 @@
+transformers==4.46.3
+ultralytics==8.3.40
+Pillow
+requests
+scipy
+tqdm
+pandas
+seaborn
+tensorboard
+roboflow
+kagglehub
+openimages
+torchmetrics
+timm

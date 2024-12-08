@@ -1,0 +1,30 @@
+name: convolutionalists_new
+channels:
+  - defaults
+dependencies:
+  - python=3.8.10
+  - pip
+  - matplotlib
+  - numpy
+  - tqdm
+  - jupyter
+  - notebook
+  - ipykernel
+  - pip:
+      - torch==1.13.1
+      - torchvision==0.14.1
+      - transformers==4.24.0
+      - ultralytics==8.3.40
+      - opencv-python
+      - Pillow
+      - requests
+      - scipy
+      - pandas
+      - seaborn
+      - tensorboard
+      - roboflow
+      - kagglehub
+      - openimages
+      - torchmetrics
+      - timm
+      - torchmetrics[detection]
