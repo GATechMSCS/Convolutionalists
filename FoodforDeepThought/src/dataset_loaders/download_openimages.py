@@ -234,37 +234,6 @@ class OpenImagesLoader:
 
         print(f"Dataset has been reduced!")
 
-    def get_datasets(self):
-
-        """ This function splits the datasets into training, validation, and testing sets. """
-
-        # Note - this assumes the openimages dataset has already been downloaded to their respective directories:.
-        # If the dataset has not been downloaded, then please manually download it and place it in the directories
-        # as described in the class initialization:
-        train_raw = ImageFolder(self.train_dir, transform=self.transforms)
-        val_raw = ImageFolder(self.val_dir, transform=self.transforms)
-        test_raw = ImageFolder(self.test_dir, transform=self.transforms)
-
-        # Seed generator:
-        generator = torch.Generator().manual_seed(self.random_seed)
-
-        if self.perc_keep != 1.00:
-            # Calculating the limited sizes of the datasets to keep:
-            train_size = int(len(train_raw) * self.perc_keep)
-            val_size = int(len(val_raw) * self.perc_keep)
-            test_size = int(len(test_raw) * self.perc_keep)
-
-            # Decreasing the size of the datasets using random_split:
-            train_raw, _ = random_split(train_raw, [train_size, (len(train_raw)-train_size)])
-            val_raw, _ = random_split(val_raw, [val_size, (len(val_raw)-val_size)])
-            test_raw, _ = random_split(test_raw, [test_size, (len(test_raw)-test_size)])
-
-        train_set = DataLoader(train_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
-        val_set = DataLoader(val_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
-        test_set = DataLoader(test_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
-        
-        return train_set, val_set, test_set
-
     def get_dataloaders(self):
 
         """ This function wraps the training, validation, and testing sets into dataloaders. """
@@ -381,6 +350,38 @@ class OpenImagesLoader:
 
         return ann_dict
 
+# DON'T THINK ANYONE IS USING THIS. IT'S OLD AND NOT USEFUL
+    # def get_datasets(self):
+
+    #     """ This function splits the datasets into training, validation, and testing sets. """
+
+    #     # Note - this assumes the openimages dataset has already been downloaded to their respective directories:.
+    #     # If the dataset has not been downloaded, then please manually download it and place it in the directories
+    #     # as described in the class initialization:
+    #     train_raw = ImageFolder(self.train_dir, transform=self.transforms)
+    #     val_raw = ImageFolder(self.val_dir, transform=self.transforms)
+    #     test_raw = ImageFolder(self.test_dir, transform=self.transforms)
+
+    #     # Seed generator:
+    #     generator = torch.Generator().manual_seed(self.random_seed)
+
+    #     if self.perc_keep != 1.00:
+    #         # Calculating the limited sizes of the datasets to keep:
+    #         train_size = int(len(train_raw) * self.perc_keep)
+    #         val_size = int(len(val_raw) * self.perc_keep)
+    #         test_size = int(len(test_raw) * self.perc_keep)
+
+    #         # Decreasing the size of the datasets using random_split:
+    #         train_raw, _ = random_split(train_raw, [train_size, (len(train_raw)-train_size)])
+    #         val_raw, _ = random_split(val_raw, [val_size, (len(val_raw)-val_size)])
+    #         test_raw, _ = random_split(test_raw, [test_size, (len(test_raw)-test_size)])
+
+    #     train_set = DataLoader(train_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
+    #     val_set = DataLoader(val_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
+    #     test_set = DataLoader(test_raw, batch_size=self.batch_size, shuffle=True) # Applying a DataLoader to the test set
+        
+    #     return train_set, val_set, test_set
+
 class DatasetWrapper:
     """ Class used to wrap each dataset (list of tuples of (image, annotations)) as a class compatible with
         PyTorch's DataLoader object. """
@@ -396,11 +397,16 @@ class DatasetWrapper:
 
 # FOR FASTER-RCNN
 class ImageLoaderFRCNN(Dataset):
-    def __init__(self, root, tforms=None):
+    def __init__(self, root, classes, tforms=None):
         self.root = root
         self.tforms = tforms
+        self.classes = classes
         self.imgs = list(sorted(os.listdir(os.path.join(self.root, "images"))))
         self.annotations = list(sorted(os.listdir(os.path.join(self.root, "annotations"))))
+
+        self.class_2_index = {}
+        for i, class_name in enumerate(self.classes):
+            self.class_2_index[class_name.lower()] = i
 
     def __getitem__(self, idx):
         img_path = os.path.join(self.root, "images", self.imgs[idx])
@@ -415,7 +421,7 @@ class ImageLoaderFRCNN(Dataset):
         boxes = []
         labels = []
         for obj in root.findall('object'):
-            label = obj.find('name').text
+            label = obj.find('name').text.capitalize()
             bbox = obj.find('bndbox')
             xmin = float(bbox.find('xmin').text)
             ymin = float(bbox.find('ymin').text)
@@ -430,10 +436,7 @@ class ImageLoaderFRCNN(Dataset):
         target = {}
         target["boxes"] = boxes
         target["labels"] = labels
-        # target["image_id"] = torch.tensor([idx])
-        # target["area"] = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
-        # target["iscrowd"] = torch.zeros((len(boxes),), dtype=torch.int64)
-        
+            
         if self.tforms is not None:
             img, target = self.tforms(img, target)
         
@@ -441,5 +444,3 @@ class ImageLoaderFRCNN(Dataset):
 
     def __len__(self):
         return len(self.imgs)
-
-    
