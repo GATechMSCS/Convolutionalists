@@ -6,6 +6,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
+from torchvision import tv_tensors
 import xml.etree.ElementTree as ET
 from PIL import Image
 import random
@@ -503,6 +504,7 @@ class ImageLoaderFRCNN(Dataset):
             
         if self.tforms is not None:
             img, target = self.tforms(img, target)
+            boxes = tv_tensors.BoundingBoxes(boxes, format="XYXY", canvas_size=img.size)
         
         return img, target
 
