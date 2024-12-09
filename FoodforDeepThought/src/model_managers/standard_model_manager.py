@@ -204,11 +204,17 @@ class FRCNNModelManager(StandardModelManager):
             self.model.train()
             display_epoch = epoch + 1
             total_loss = 0
+            print(f"in epoch loop: {display_epoch}")
             for images, targets in training_data_loader:
+                print(f"in training loop: {display_epoch}")
                 images = list(image.to(self.device) for image in images)
                 targets = [{k: v.to(self.device) for k, v in t.items()} for t in targets]
+                print(f"running model: {display_epoch}")
                 output = self.model.forward(images, targets)
+                print(f"completed model: {display_epoch}")
+                print(f"calcualting loss: {display_epoch}")
                 losses = sum(loss for loss in output.values())
+                print(f"completed calcualting loss: {losses}")
                 self.optimizer.zero_grad()
                 losses.backward()
                 self.optimizer.step()
