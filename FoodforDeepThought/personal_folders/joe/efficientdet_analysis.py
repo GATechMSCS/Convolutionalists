@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 def run():
-    df = pd.read_csv('summaries/summary1.csv', index_col=0)
+    df = pd.read_csv('summaries/summary2.csv', index_col=0)
     df.rename(columns={"train_loss": "Training Loss", "eval_loss": "Validation Loss", "eval_map": "Validation mAP"}, inplace=True)
     loss_df = df.iloc[:, :2]
     map_df = df.iloc[:, 2:]
