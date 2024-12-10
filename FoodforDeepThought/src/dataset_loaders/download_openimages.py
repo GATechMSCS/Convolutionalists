@@ -452,8 +452,12 @@ class ImageLoaderFRCNN(Dataset):
         labels = []
         for obj in root.findall('object'):
             label = obj.find('name').text.capitalize()
-            if "food" in label:
-                label = label.replace("food", "Food")
+            if "Garden asparagus" in label:
+                label = "Garden Asparagus"
+                #label = obj.find('name').text.title()
+            elif "Egg (food)" in label:
+                label = "Egg (Food)"
+
             bbox = obj.find('bndbox')
             xmin = float(bbox.find('xmin').text)
             ymin = float(bbox.find('ymin').text)
@@ -471,7 +475,6 @@ class ImageLoaderFRCNN(Dataset):
             
         if self.tforms is not None:
             img, target = self.tforms(img, target)
-            boxes = tv_tensors.BoundingBoxes(boxes, format="XYXY", canvas_size=img.size)
         
         return img, target
 

@@ -174,7 +174,7 @@ class StandardModelManager:
         outputs = llm.generate(**inputs, max_length=500)
         response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-        print(f"Detected Food Item: {detected_items}")
+        print(f"Detected Food Item: {model_preds}")
         print(f"Requested Data:\n{response}")
         return response
 
@@ -195,6 +195,10 @@ class FRCNNModelManager(StandardModelManager):
         self.model = model.to(self.device)
         self.metric = metric.to(self.device)
         self.optimizer = optimizer
+        self.train_loss = []
+        self.meanAP = []
+        self.best_model_state_dict = None
+        self.save_checkpoint = {}
 
     def train(self, training_data_loader, validation_data_loader, epochs=10):
 
@@ -213,10 +217,8 @@ class FRCNNModelManager(StandardModelManager):
                 self.optimizer.step()
 
                 self.total_loss += losses.item()
+            self.train_loss.append(self.total_loss)
 
-            print(f'Training for epoch {display_epoch} Complete. Total Loss: {self.total_loss:.4f}')
-            
-            
             self.model.eval()
             self.val_loss = 0
             for images, targets in validation_data_loader:
@@ -224,47 +226,56 @@ class FRCNNModelManager(StandardModelManager):
                 targets = [{k: v.to(self.device) for k, v in t.items()} for t in targets]
 
                 with torch.no_grad():
-                    #loss_dict = self.model.forward(images, targets)
                     predictions = self.model.forward(images)
-
-                #losses = sum(loss for loss in loss_dict.values())
-                #self.val_loss += losses.item()
 
                 self.metric.update(predictions, targets)
                                       
 
             # Calculate average losses
             #avg_train_loss = self.total_loss / len(training_data_loader)
-            #avg_val_loss = self.val_loss / len(validation_data_loader)
 
             map_result = self.metric.compute()
             mAP = map_result['map'].item()
+            self.meanAP.append(mAP)
 
             # Reset metric for next epoch
             self.metric.reset()
 
             # Print results every 2 epochs
             if (display_epoch) % 2 == 0:
-                print(f"Epoch: {display_epoch}")
-               # print(f"Train Loss: {avg_train_loss:.4f}")
-                #print(f"Validation Loss: {avg_val_loss:.4f}")
-                #print(f"mAP: {mAP:.4f}")
-                print("=" * 30)
+                print(f'\nTraining for epoch {display_epoch} Complete. Train Epoch Loss: {self.train_loss:.4f}')
+                print(f"mAP: {mAP:.4f}")
+                print(f"{'=' * 30}\n")
 
-                # print(f'Epoch {display_epoch} Batch Validation Accuracy: {acc:.4f}')
-                # print('===========================================================')
+                
+            self.model_state_dict = copy.deepcopy(self.model.state_dict())
+            self.save_checkpoint[epoch] = self.model_state_dict
+            torch.save(self.model_state_dict, f"faster_rcnn_{epoch}.pt")
 
-                # if acc > self.best_accuracy:
-                #     self.best_accuracy = acc
-                #     self.best_model_state_dict = copy.deepcopy(self.model.state_dict())
-
-            # Appending the validation accuracy for the current epoch to the list of validation accuracy values:
-            # val_accs.append(acc)
+        self.model.load_state_dict(self.model_state_dict)
+    
+    def plot_learning_curve(self, model_name):
+        """
+        This function plots the learning curve from the most recent training period of this model manager.
         
-        # Load best state after training for use
-        # if self.best_model_state_dict is not None:
-        #     self.model.load_state_dict(self.best_model_state_dict)
+        Inputs:
+        model_name (str) - Name of the model
+        """
 
-        # Setting the training and validation accuracy lists to their respective class variables:
-        # self.training_accs = training_accs
-        # self.val_accs = val_accs
+        title = model_name + " Learning Curve"
+        filename = model_name + "_learning_curve.png"
+
+        # Moving tensors to CPU:
+        for i, values in enumerate(zip(self.train_loss, self.meanAP)):
+            self.train_loss[i] = values[0].to('cpu')
+            self.meanAP[i] = values[1].to('cpu')
+
+        # Plotting training and validation accuracy values:
+        plt.plot(self.train_loss, label='Training Accuracy')
+        plt.plot(self.meanAP, label='Validation Accuracy')
+        plt.xlabel('Epochs')
+        plt.ylabel('Accuracy')
+        plt.title(title)
+        plt.legend(loc='best')
+        plt.savefig(filename, dpi=600)
+        plt.show()
