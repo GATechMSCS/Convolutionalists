@@ -443,7 +443,16 @@ class ImageLoaderFRCNN(Dataset):
         ann_path = os.path.join(self.root, "annotations", self.annotations[idx])
         
         img = Image.open(img_path).convert("RGB")
-        
+        height_i = img.height
+        width_i = img.width
+
+        if self.tforms is not None:
+            img, target = self.tforms(img, target)
+            # boxes = tv_tensors.BoundingBoxes(boxes, format="XYXY", canvas_size=img.size)
+
+        height_f = img.height
+        width_f = img.width
+
         # Parse the XML annotation file
         tree = ET.parse(ann_path)
         root = tree.getroot()
@@ -455,10 +464,10 @@ class ImageLoaderFRCNN(Dataset):
             if "food" in label:
                 label = label.replace("food", "Food")
             bbox = obj.find('bndbox')
-            xmin = float(bbox.find('xmin').text)
-            ymin = float(bbox.find('ymin').text)
-            xmax = float(bbox.find('xmax').text)
-            ymax = float(bbox.find('ymax').text)
+            xmin = width_f * float(bbox.find('xmin').text) / width_i
+            ymin = height_f * float(bbox.find('ymin').text) / height_i
+            xmax = width_f * float(bbox.find('xmax').text) / width_i
+            ymax = height_f * float(bbox.find('ymax').text) / height_i
             boxes.append([xmin, ymin, xmax, ymax])
             labels.append(self.classes.index(label))
         
@@ -468,10 +477,6 @@ class ImageLoaderFRCNN(Dataset):
         target = {}
         target["boxes"] = boxes
         target["labels"] = labels
-            
-        if self.tforms is not None:
-            img, target = self.tforms(img, target)
-            boxes = tv_tensors.BoundingBoxes(boxes, format="XYXY", canvas_size=img.size)
         
         return img, target
 
