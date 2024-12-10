@@ -195,64 +195,61 @@ class FRCNNModelManager(StandardModelManager):
         self.model = model.to(self.device)
         self.metric = metric.to(self.device)
         self.optimizer = optimizer
+        self.val_loss = 0
 
-    def train(self, training_data_loader, validation_data_loader=None, epochs=10, has_box=False):
+    def train(self, training_data_loader, validation_data_loader, epochs=10):
 
-        training_accs = [] # List of training accuracy values
-        val_accs = [] # List of validation accuracy values
         for epoch in tqdm(range(epochs)):
             self.model.train()
             display_epoch = epoch + 1
-            total_loss = 0
-            print(f"in epoch loop: {display_epoch}")
+            self.total_loss = 0
             for images, targets in training_data_loader:
-                print(f"in training loop: {display_epoch}")
                 images = list(image.to(self.device) for image in images)
                 targets = [{k: v.to(self.device) for k, v in t.items()} for t in targets]
-                print(f"running model: {display_epoch}")
-                output = self.model.forward(images, targets)
-                print(f"completed model: {display_epoch}")
-                print(f"calcualting loss: {display_epoch}")
-                losses = sum(loss for loss in output.values())
-                print(f"completed calcualting loss: {losses}")
+                outputs = self.model.forward(images, targets)
+
                 self.optimizer.zero_grad()
+                losses = torch.sum(torch.stack(list(outputs.values())))
+                print(outputs)
+                print(losses)
                 losses.backward()
                 self.optimizer.step()
 
-                total_loss += losses.item()
+                self.total_loss += losses.item()
 
-            if display_epoch % 10 == 0:
-                print(f'Epoch {display_epoch} Total Loss: {total_loss:.4f}')
-
-            # Appending the training accuracy at the end of the current epoch to the list of training accuracy values:
-            # training_accs.append(acc)
+            if display_epoch % 2 == 0:
+                print(f'Epoch {display_epoch} Total Loss: {self.total_loss:.4f}')
             
-            if validation_data_loader:
-                # num_correct = 0
-                # num_samples = 0
-                model.eval()
-                val_loss = 0
-                with torch.no_grad():
-                    for images, target in validation_data_loader:
-                        #target = target.to(self.device)
-                        images = list(image.to(device) for image in images)
-                        outputs = self.model.forward(images)
-                        val_loss += sum(loss for loss in loss_dict.values()).item()
-                        #output = self.model.forward(data.to(self.device))
-                        #loss = self.criterion(output, target)
+            
+            self.model.eval()
+            with torch.no_grad():
+                for images, targets in validation_data_loader:
+                    images = list(image.to(self.device) for image in images)
+                    outputs = self.model.forward(images)
+                    
+                    self.val_loss += torch.sum(torch.stack(outputs))
+                    self.metric.update(outputs, targets)
 
-                    # Check Accuracy
-                #     batch_size = target.shape[0]
-                #     _, pred = torch.max(output, dim=-1)
-                #     correct = pred.eq(target).sum() * 1.0
-                #     acc = correct / batch_size
-                #     num_correct += correct
-                #     num_samples += batch_size
+            # Calculate average losses
+            avg_train_loss = self.total_loss / len(training_data_loader)
+            avg_val_loss = self.val_loss / len(validation_data_loader)
 
-                # acc = num_correct / num_samples
+            map_result = self.metric.compute()
+            mAP = map_result['map'].item()
 
-                print(f'Epoch {display_epoch} Batch Validation Accuracy: {acc:.4f}')
-                print('===========================================================')
+            # Reset metric for next epoch
+            self.metric.reset()
+
+            # Print results every 2 epochs
+            if (display_epoch) % 2 == 0:
+                print(f"Epoch: {display_epoch}")
+                print(f"Train Loss: {avg_train_loss:.4f}")
+                print(f"Validation Loss: {avg_val_loss:.4f}")
+                print(f"mAP: {mAP:.4f}")
+                print("=" * 30)
+
+                # print(f'Epoch {display_epoch} Batch Validation Accuracy: {acc:.4f}')
+                # print('===========================================================')
 
                 # if acc > self.best_accuracy:
                 #     self.best_accuracy = acc
