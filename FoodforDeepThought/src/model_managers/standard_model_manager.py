@@ -243,8 +243,9 @@ class FRCNNModelManager(StandardModelManager):
 
             # Print results every 2 epochs
             if (display_epoch) % 2 == 0:
-                print(f'\nTraining for epoch {display_epoch} Complete. Train Epoch Loss: {self.train_loss:.4f}')
-                print(f"mAP: {mAP:.4f}")
+                print(f'\nTraining for epoch {display_epoch} Complete.')
+                #Train Epoch Loss: {self.train_loss:.4f}')
+                #print(f"mAP: {mAP:.4f}")
                 print(f"{'=' * 30}\n")
 
                 
