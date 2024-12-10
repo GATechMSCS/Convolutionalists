@@ -195,7 +195,6 @@ class FRCNNModelManager(StandardModelManager):
         self.model = model.to(self.device)
         self.metric = metric.to(self.device)
         self.optimizer = optimizer
-        self.val_loss = 0
 
     def train(self, training_data_loader, validation_data_loader, epochs=10):
 
@@ -209,30 +208,34 @@ class FRCNNModelManager(StandardModelManager):
                 outputs = self.model.forward(images, targets)
 
                 self.optimizer.zero_grad()
-                losses = torch.sum(torch.stack(list(outputs.values())))
-                print(outputs)
-                print(losses)
+                losses = sum(loss for loss in outputs.values())
                 losses.backward()
                 self.optimizer.step()
 
                 self.total_loss += losses.item()
 
-            if display_epoch % 2 == 0:
-                print(f'Epoch {display_epoch} Total Loss: {self.total_loss:.4f}')
+            print(f'Training for epoch {display_epoch} Complete. Total Loss: {self.total_loss:.4f}')
             
             
             self.model.eval()
-            with torch.no_grad():
-                for images, targets in validation_data_loader:
-                    images = list(image.to(self.device) for image in images)
-                    outputs = self.model.forward(images)
-                    
-                    self.val_loss += torch.sum(torch.stack(outputs))
-                    self.metric.update(outputs, targets)
+            self.val_loss = 0
+            for images, targets in validation_data_loader:
+                images = list(image.to(self.device) for image in images)
+                targets = [{k: v.to(self.device) for k, v in t.items()} for t in targets]
+
+                with torch.no_grad():
+                    #loss_dict = self.model.forward(images, targets)
+                    predictions = self.model.forward(images)
+
+                #losses = sum(loss for loss in loss_dict.values())
+                #self.val_loss += losses.item()
+
+                self.metric.update(predictions, targets)
+                                      
 
             # Calculate average losses
-            avg_train_loss = self.total_loss / len(training_data_loader)
-            avg_val_loss = self.val_loss / len(validation_data_loader)
+            #avg_train_loss = self.total_loss / len(training_data_loader)
+            #avg_val_loss = self.val_loss / len(validation_data_loader)
 
             map_result = self.metric.compute()
             mAP = map_result['map'].item()
@@ -243,9 +246,9 @@ class FRCNNModelManager(StandardModelManager):
             # Print results every 2 epochs
             if (display_epoch) % 2 == 0:
                 print(f"Epoch: {display_epoch}")
-                print(f"Train Loss: {avg_train_loss:.4f}")
-                print(f"Validation Loss: {avg_val_loss:.4f}")
-                print(f"mAP: {mAP:.4f}")
+               # print(f"Train Loss: {avg_train_loss:.4f}")
+                #print(f"Validation Loss: {avg_val_loss:.4f}")
+                #print(f"mAP: {mAP:.4f}")
                 print("=" * 30)
 
                 # print(f'Epoch {display_epoch} Batch Validation Accuracy: {acc:.4f}')
