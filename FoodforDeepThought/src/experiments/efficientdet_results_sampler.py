@@ -21,10 +21,12 @@ def run():
     test_image_files = os.listdir(os.path.join('data', 'openimages', 'test', 'images'))
 
     fig, axs = plt.subplots(2, 2)
+    images_chosen = []
 
     for ax in axs.flatten().tolist():
         random_index = random.randint(1, len(test_image_files)) - 1
         image_file = test_image_files[random_index]
+        images_chosen.append(image_file)
         image_id = image_file.split('.')[0]
         print(f'Image Selected: {image_id}')
 
@@ -65,11 +67,12 @@ def run():
             y = result['bbox'][1]
             w = result['bbox'][2]
             h = result['bbox'][3]
-            box = patches.Rectangle((x, y), w, h, facecolor='none', edgecolor='red', linewidth=1, label=class_name)
+            box = patches.Rectangle((x, y), w, h, facecolor='none', edgecolor='red', linewidth=1)
             ax.add_patch(box)
-            ax.text(x+10, y-18, class_name, color='white', backgroundcolor='red', fontsize=6)
+            ax.text(x+10, y-18, f'{class_name}: {round(result["score"], 2)}', color='white', backgroundcolor='red', fontsize=6)
 
     plt.savefig(fname='sampler.png', bbox_inches='tight', dpi=300)
+    print(f'Images Chosen: {images_chosen}')
     plt.show()
 
 
