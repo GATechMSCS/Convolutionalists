@@ -13,11 +13,11 @@ def run():
     confidence_score = 0.1
     num_ranks = 5
     ranks = []
-    filename = 'joes_open_images_results.json'
+    filename = 'efficientdet_test_results.json'
     with open(os.path.join('src', 'efficientdet-pytorch', filename)) as f:
         results = json.load(f)
 
-    test_image_files = os.listdir(os.path.join('data', 'openimages', 'val', 'images'))
+    test_image_files = os.listdir(os.path.join('data', 'openimages', 'test', 'images'))
     random_index = random.randint(1, len(test_image_files)) - 1
     image_file = test_image_files[random_index]
     image_id = image_file.split('.')[0]

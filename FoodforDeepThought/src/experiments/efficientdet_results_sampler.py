@@ -14,11 +14,11 @@ from ..dataset_loaders.download_openimages import OpenImagesLoader
 def run():
     dataset_loader = OpenImagesLoader()
     confidence_score = 0.1
-    filename = 'efficientdet_results.json'
+    filename = 'efficientdet_test_results.json'
     with open(os.path.join('src', 'efficientdet-pytorch', filename)) as f:
         results = json.load(f)
 
-    test_image_files = os.listdir(os.path.join('data', 'openimages', 'val', 'images'))
+    test_image_files = os.listdir(os.path.join('data', 'openimages', 'test', 'images'))
 
     fig, axs = plt.subplots(2, 2)
 
