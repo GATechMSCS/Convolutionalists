@@ -11,3 +11,5 @@ FoodForDeepThought/runs/*
 
 *.pyc
 .DS_Store
+
+*.env
