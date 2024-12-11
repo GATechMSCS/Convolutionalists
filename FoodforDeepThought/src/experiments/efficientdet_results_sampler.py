@@ -53,7 +53,7 @@ def run():
                     iou_boxes = torch.cat((iou_boxes, box), 0)
                     iou_results.append(result)
 
-        image = cv2.imread(os.path.join('data', 'openimages', 'val', 'images', image_file))
+        image = cv2.imread(os.path.join('data', 'openimages', 'test', 'images', image_file))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         ax.imshow(image)
