@@ -56,3 +56,7 @@ python validate.py data/OpenImages/ -b 14 --model efficientdet_q0 --pretrained -
 
 ### DERT Module
 Ensure to clone Meta Research's DETR repository (https://github.com/facebookresearch/detr) to this level in the project structure. Within the build() method in the DETR repo, hard-code the number of classes to 65.
+
+
+### YOLO
+YOLO model is built using Ultralytics library (https://github.com/ultralytics/ultralytics). YOLO.ipynb trains on Open Images v5 to detect food objects.
