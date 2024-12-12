@@ -13,7 +13,7 @@ use the model to make predictions
 - **model_saves** - This directory is for saving the models we use in our experiments so they can be used in 
 other experiments
 
-To run an experiment, simpley type something like the following in a terminal 
+To run an experiment, simply type something like the following in a terminal 
 from within the `FoodforDeepThought` directory.
 ```
 python -m src.experiments.example_experiment
@@ -52,3 +52,7 @@ To predict results using the test set:
 ```
 python validate.py data/OpenImages/ -b 14 --model efficientdet_q0 --pretrained --use-ema --dataset pascalDefault --results open_images_results.json --split test --checkpoint output/train/20241210-150600-efficientdet_q0/model_best.pth.tar
 ```
+
+
+### DERT Module
+Ensure to clone Meta Research's DETR repository (https://github.com/facebookresearch/detr) to this level in the project structure. Within the build() method in the DETR repo, hard-code the number of classes to 65.
