@@ -18,3 +18,37 @@ from within the `FoodforDeepThought` directory.
 ```
 python -m src.experiments.example_experiment
 ```
+
+### EfficientDet Module
+
+This source code contains a copy of the [efficientdet-pytorch repo](https://github.com/rwightman/efficientdet-pytorch)
+copied from a fork of the repo where I made modifications to run a dataset that uses our Open Images dataset with 
+Pascal annotations.
+
+To run this program, please be sure the environment meets the requirements in 
+`src/efficientdet-pytorch/requirements.txt`.
+
+Here are some example commands that I have run to train a model on our Open Images dataset of food images.
+
+To prepare the data, simply run the following
+```
+python -m src.experiments.example_experiment
+```
+
+Then copy `train/`, `val/`, and `test/` directories from `data/openimages/` to `src/efficientdet-pytorch/data/OpenImages/`
+
+
+To train the model:
+```
+https://github.com/rwightman/efficientdet-pytorch
+```
+
+To predict results using the validation set:
+```
+python validate.py data/OpenImages/ -b 14 --model efficientdet_q0 --pretrained --use-ema --dataset pascalDefault --results open_images_results.json --split val --checkpoint output/train/20241210-150600-efficientdet_q0/model_best.pth.tar
+```
+
+To predict results using the test set:
+```
+python validate.py data/OpenImages/ -b 14 --model efficientdet_q0 --pretrained --use-ema --dataset pascalDefault --results open_images_results.json --split test --checkpoint output/train/20241210-150600-efficientdet_q0/model_best.pth.tar
+```
